@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="에스프레소 추출량, 원두량, TDS를 입력해 추출 수율을 계산하고 에스프레소 컨트롤 차트에서 추출 상태를 확인하는 도구입니다.">
+  <meta name="author" content="1985커피 로스터현">
+  <title>에스프레소 컨트롤 차트 | 로스터현</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="brand">ROASTER HYUN</p>
+      <h1>에스프레소 컨트롤 차트</h1>
+    </div>
+    <div class="header-actions">
+      <a
+        class="talk-button"
+        href="https://talk.naver.com/ct/wcbwvv"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="네이버 톡톡으로 문의하기"
+      >
+        <span class="talk-mark" aria-hidden="true">N</span>
+        <span>톡톡 문의</span>
+      </a>
+      <p class="version">로스터현 v1.0 Web</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="chart-section" aria-labelledby="chart-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ESPRESSO CONTROL CHART</p>
+          <h2 id="chart-title">추출 결과</h2>
+        </div>
+        <div class="result-summary" aria-live="polite">
+          <div>
+            <span>TDS</span>
+            <strong id="tds-result">-</strong>
+          </div>
+          <div>
+            <span>추출 수율</span>
+            <strong id="yield-result">-</strong>
+          </div>
+          <p id="result-label">값을 입력하면 결과가 표시됩니다.</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="espresso-chart" role="img" aria-label="TDS와 추출 수율을 나타내는 에스프레소 컨트롤 차트"></canvas>
+      </div>
+      <div class="legend" aria-label="차트 범례">
+        <span><i class="legend-box yield-zone"></i>SCAA 추출수율</span>
+        <span><i class="legend-box tds-zone"></i>SCAA TDS</span>
+        <span><i class="legend-line tds"></i>TDS</span>
+        <span><i class="legend-line yield"></i>추출 수율</span>
+      </div>
+    </section>
+
+    <section class="control-section" aria-labelledby="input-title">
+      <div class="input-panel">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">MEASUREMENT</p>
+            <h2 id="input-title">측정값 입력</h2>
+          </div>
+          <button id="clear-inputs" class="text-button" type="button">입력 초기화</button>
+        </div>
+
+        <form id="espresso-form">
+          <label>
+            <span>추출된 커피 용량</span>
+            <span class="input-with-unit">
+              <input id="extracted-weight" type="number" inputmode="decimal" min="0.01" step="any" placeholder="예: 45" required>
+              <b>g</b>
+            </span>
+          </label>
+          <label>
+            <span>사용한 원두 용량</span>
+            <span class="input-with-unit">
+              <input id="coffee-weight" type="number" inputmode="decimal" min="0.01" step="any" placeholder="예: 18" required>
+              <b>g</b>
+            </span>
+          </label>
+          <label>
+            <span>TDS</span>
+            <span class="input-with-unit">
+              <input id="tds-percentage" type="number" inputmode="decimal" min="0.01" step="any" placeholder="예: 8" required>
+              <b>%</b>
+            </span>
+          </label>
+          <button class="primary-button" type="submit">그래프 그리기</button>
+        </form>
+        <p id="form-message" class="form-message" role="alert"></p>
+      </div>
+
+      <div class="log-panel">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">HISTORY</p>
+            <h2>측정 기록</h2>
+          </div>
+          <div class="log-actions">
+            <button id="download-log" class="icon-button" type="button" title="CSV로 저장" aria-label="측정 기록을 CSV로 저장">↓</button>
+            <button id="clear-log" class="icon-button danger" type="button" title="기록 삭제" aria-label="측정 기록 전체 삭제">×</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>추출량</th>
+                <th>원두량</th>
+                <th>TDS</th>
+                <th>수율</th>
+                <th>판정</th>
+                <th><span class="sr-only">불러오기</span></th>
+              </tr>
+            </thead>
+            <tbody id="log-body"></tbody>
+          </table>
+          <p id="empty-log" class="empty-log">아직 측정 기록이 없습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" aria-labelledby="guide-title">
+      <div>
+        <p class="eyebrow">GUIDE</p>
+        <h2 id="guide-title">프로그램 용도</h2>
+      </div>
+      <p>
+        에스프레소 추출 결과를 TDS와 추출 수율 기준으로 확인하는 도구입니다.
+        원본 파이썬 버전과 동일하게 추출 수율 18~22%, TDS 6.5~10.5% 영역을 기준 영역으로 표시합니다.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>에스프레소 커피 추출 결과를 확인하기 위한 도구입니다.</p>
+    <p>프로그램의 모든 지식 재산권은 1985커피 '로스터현'에 있습니다. 개인정보를 수집하지 않습니다.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
